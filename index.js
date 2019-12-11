@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const Vocab = require('./Vocab');
+const SuffixVocab = require('./SuffixVocab');
 
 app.use(cors());
 
@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/', Vocab.readAll);
+app.get('/', SuffixVocab.readAll);
 
 app.post('/importSuffix', (req, res) => {
     req.body.forEach(vocab => {
@@ -27,21 +27,21 @@ app.post('/importSuffix', (req, res) => {
 
         if (vocab.subs.length > 0) {
             if(vocab.prss.Ilength > 1 && hasPrefix(vocab.prss)) {
-                Vocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, hasPrefix(vocab.prss).key.trim()+' + '+vocab.subs[0].word.trim()+' + '+vocab.prss[1].key.trim())
+                SuffixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, hasPrefix(vocab.prss).key.trim()+' + '+vocab.subs[0].word.trim()+' + '+vocab.prss[1].key.trim())
                 return;
             }
-            Vocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, vocab.subs[0].word.trim() + ' + ' + vocab.prss[0].key.trim())
-            Vocab.insert(req, res, vocab.subs[0].word, vocab.subs[0].dictionary.definition, vocab.subs[0].dictionary.kk)
+            SuffixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, vocab.subs[0].word.trim() + ' + ' + vocab.prss[0].key.trim())
+            SuffixVocab.insert(req, res, vocab.subs[0].word, vocab.subs[0].dictionary.definition, vocab.subs[0].dictionary.kk)
             
         } else if(vocab.prss.length === 1) {
-            Vocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, vocab.prss[0].key.trim())
+            SuffixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, vocab.prss[0].key.trim())
             
         } else {
             var apart = ""
             vocab.prss.forEach(element=> {
                 apart += " + " + element.key.trim()
             });
-            Vocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, apart.substring(3, apart.length))
+            SuffixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, apart.substring(3, apart.length))
         }   
     });
   
