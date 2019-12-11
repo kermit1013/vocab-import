@@ -4,6 +4,8 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const SuffixVocab = require('./SuffixVocab');
+const PrefixVocab = require('./PrefixVocab');
+
 
 app.use(cors());
 
@@ -26,7 +28,7 @@ app.post('/importSuffix', (req, res) => {
 
 
         if (vocab.subs.length > 0) {
-            if(vocab.prss.Ilength > 1 && hasPrefix(vocab.prss)) {
+            if(vocab.prss.length > 1 && hasPrefix(vocab.prss)) {
                 SuffixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, hasPrefix(vocab.prss).key.trim()+' + '+vocab.subs[0].word.trim()+' + '+vocab.prss[1].key.trim())
                 return;
             }
@@ -42,6 +44,41 @@ app.post('/importSuffix', (req, res) => {
                 apart += " + " + element.key.trim()
             });
             SuffixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, apart.substring(3, apart.length))
+        }   
+    });
+  
+    res.send('Success');
+});
+
+app.post('/importPrefix', (req, res) => {
+    req.body.forEach(vocab => {
+        vocab.prss.sort(function(a, b){
+            var keyA = a.id,
+                keyB = b.id;
+    
+            if(keyA < keyB) return -1;
+            if(keyA > keyB) return 1;
+            return 0;
+        });
+
+        if (vocab.subs.length > 0) {
+            if(vocab.prss.length > 1 && hasPrefix(vocab.prss)) {
+                PrefixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, hasPrefix(vocab.prss).key.trim()+' + '+vocab.subs[0].word.trim()+' + '+vocab.prss[1].key.trim())
+                return;
+            }
+
+            PrefixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, vocab.prss[0].key.trim() + ' + ' + vocab.subs[0].word.trim())
+            PrefixVocab.insert(req, res, vocab.subs[0].word, vocab.subs[0].dictionary.definition, vocab.subs[0].dictionary.kk)
+            
+        } else if(vocab.prss.length === 1) {
+            PrefixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, vocab.prss[0].key.trim())
+            
+        } else {
+            var apart = ""
+            vocab.prss.forEach(element=> {
+                apart += " + " + element.key.trim()
+            });
+            PrefixVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, apart.substring(3, apart.length))
         }   
     });
   
