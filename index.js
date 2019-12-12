@@ -6,6 +6,7 @@ const cors = require('cors');
 const SuffixVocab = require('./SuffixVocab');
 const PrefixVocab = require('./PrefixVocab');
 const RootVocab = require('./RootVocab');
+const Affix = require('./Affix');
 
 
 app.use(cors());
@@ -121,6 +122,15 @@ app.post('/importRoot', (req, res) => {
             });
             RootVocab.insert(req, res, vocab.word, vocab.dictionary.definition, vocab.dictionary.kk, apart.substring(3, apart.length))
         }   
+    });
+  
+    res.send('Success');
+});
+
+app.post('/importAffix', (req, res) => {
+    req.body.forEach(affix => {
+        // console.log(key,variations,meaning,meaning_en);
+         Affix.insert(req, res, affix.key, affix.variations, affix.meaning, affix.meaning_en);
     });
   
     res.send('Success');
